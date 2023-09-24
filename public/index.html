@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Real-time Pixel Drawing</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    #canvas-container {
+      position: relative;
+      border: 2px solid #000;
+      background-color: white; /* Initial background color */
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #color-toggle {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container">
+    <canvas id="canvas" width="800" height="800"></canvas>
+  </div>
+  <button id="color-toggle">Toggle Color</button>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fabric"></script>
+  <script>
+     const canvasContainer = document.getElementById('canvas-container');
+    const canvas = new fabric.Canvas('canvas', {
+      selection: false,
+      backgroundColor: 'white', // Initial background color
+    });
+
+    const colorToggle = document.getElementById('color-toggle');
+
+    // Initialize socket.io connection
+    // Inside the client-side script
+// ...
+
+// Initialize socket.io connection
+const socket = io.connect(window.location.origin);
+
+socket.on('connect', () => {
+  console.log('Connected to server');
+});
+
+// Initialize the current color as black
+let currentColor = 'black';
+canvasContainer.style.backgroundColor = currentColor; // Set initial background color
+
+// Handle color toggle button click
+colorToggle.addEventListener('click', () => {
+  currentColor = currentColor === 'white' ? 'black' : 'white';
+  canvasContainer.style.backgroundColor = currentColor; // Change canvas background color
+});
+
+socket.on('initialPixels', function(pixels) {
+  // Iterate through the existing pixels and display them
+  for (const pixelData of pixels) {
+    const pixel = new fabric.Rect({
+      left: pixelData.left,
+      top: pixelData.top,
+      width: 10,
+      height: 10,
+      fill: pixelData.fill,
+      selectable: false,
+    });
+    canvas.add(pixel);
+  }
+  canvas.renderAll();
+});
+
+canvas.on('mouse:down', function(event) {
+  const pointer = canvas.getPointer(event.e);
+  const x = Math.floor(pointer.x / 10) * 10;
+  const y = Math.floor(pointer.y / 10) * 10;
+
+  // Place a new pixel
+  const pixel = new fabric.Rect({
+    left: x,
+    top: y,
+    width: 10,
+    height: 10,
+    fill: currentColor,
+    selectable: false,
+  });
+  canvas.add(pixel);
+  socket.emit('pixelPlaced', {
+    left: pixel.left,
+    top: pixel.top,
+    fill: pixel.fill,
+  });
+});
+
+socket.on('pixelPlaced', function(data) {
+  const pixel = new fabric.Rect({
+    left: data.left,
+    top: data.top,
+    width: 10,
+    height: 10,
+    fill: data.fill,
+    selectable: false,
+  });
+  canvas.add(pixel);
+  canvas.renderAll();
+});
+
+// ...
+
+  </script>
+</body>
+</html>
