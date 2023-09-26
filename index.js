@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://mutli-drawings-main-db-09f45460752:ad8Tn5Tu1ZUAEQR6He44R7twEzFvWP@prod-us-central1-2.ih9la.mongodb.net/mutli-drawings-main-db-09f45460752', {
+mongoose.connect('process.env.MONGOCN', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
