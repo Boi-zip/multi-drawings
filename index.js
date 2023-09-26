@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 const mongoose = require('mongoose');
 
-mongoose.connect('process.env.MONGOCN', {
+mongoose.connect(process.env.MONGOCN, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
